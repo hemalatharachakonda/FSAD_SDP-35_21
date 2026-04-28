@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Project Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { background: #45a049; }
+        .danger { background: #dc3545; }
+        .danger:hover { background: #c82333; }
+        .warning { background: #ffc107; color: black; }
+        .warning:hover { background: #e0a800; }
+        .secondary { background: #6c757d; }
+        .user-info {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            border-bottom-color: #4CAF50;
+            color: #4CAF50;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .group-card {
+            border-left: 4px solid #4CAF50;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .group-card.completed { border-left-color: #6c757d; opacity: 0.8; }
+        .login-container { max-width: 450px; margin: 80px auto; }
+        .error { color: red; text-align: center; margin-top: 10px; }
+        .success { color: green; text-align: center; margin-top: 10px; }
+        .hidden { display: none; }
+        .group-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        .group-buttons button { width: auto; padding: 8px 15px; margin: 0; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow: auto;
+        }
+        .close-modal {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .project-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .report {
+            background: #e8f5e9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+        }
+        .my-msg { background: #e8f5e9; margin-left: 20%; }
+        .student-msg { background: #e1f5fe; }
+        .chat-box {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .shared-file-item {
+            border-left: 4px solid #4CAF50;
+            padding: 10px;
+            margin: 10px 0;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .shared-file-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .shared-file-actions button { width: auto; padding: 5px 10px; }
+        .file-upload {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .submission-checklist label { display: block; margin: 10px 0; }
+        .uploaded-file {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Student Group Project Management System</h1>
+    </header>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="container login-container">
+        <div class="card">
+            <h2>Login</h2>
+            <div style="background:#e8f4f8;padding:15px;border-radius:8px;margin:15px 0;font-size:14px">
+                <strong>Test Accounts:</strong><br>
+                • Teacher: <code>teacher / admin123</code><br>
+                • Student: <code>student1 / pass123</code><br>
+                • Student: <code>student2 / pass123</code>
+            </div>
+            <input type="text" id="username" placeholder="Username" value="teacher">
+            <input type="password" id="password" placeholder="Password" value="admin123">
+            <button onclick="login()">Login</button>
+            <p id="errorMsg" class="error"></p>
+        </div>
+    </div>
+
+    <!-- Teacher Dashboard -->
+    <div id="teacherDashboard" class="container hidden">
+        <div class="user-info">
+            Teacher: <span id="teacherName">Dinesh Kumar</span>
+            <button onclick="logout()" class="secondary" style="margin-left:10px;">Logout</button>
+        </div>
+        <h2>Teacher Dashboard</h2>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('teacher', 'groups')">Groups</div>
+            <div class="tab" onclick="switchTab('teacher', 'grading')">Grading</div>
+            <div class="tab" onclick="switchTab('teacher', 'submissions')">Submissions</div>
+            <div class="tab" onclick="switchTab('teacher', 'profile')">Profile</div>
+        </div>
+
+        <div id="teacherGroupsTab" class="tab-content active">
+            <h3>Create New Group</h3>
+            <input type="text" id="groupName" placeholder="Group Name">
+            <input type="text" id="studentList" placeholder="Students (comma separated: student1, student2)">
+            <input type="text" id="projectTitle" placeholder="Project Title">
+            <textarea id="projectDescription" placeholder="Project Description" rows="3"></textarea>
+            <input type="date" id="projectDeadline">
+            <button onclick="createGroup()">Create Group</button>
+            <h3>Manage Groups</h3>
+            <div id="groupsList">Loading...</div>
+        </div>
+
+        <div id="teacherGradingTab" class="tab-content hidden">
+            <h3>Grading</h3>
+            <div id="gradingContainer">Loading...</div>
+        </div>
+
+        <div id="teacherSubmissionsTab" class="tab-content hidden">
+            <h3>Project Submissions</h3>
+            <div id="submissionsContainer">No submissions yet.</div>
+        </div>
+
+        <div id="teacherProfileTab" class="tab-content hidden">
+            <h3>Teacher Profile</h3>
+            <div class="profile-details">
+                <p><strong>Username:</strong> <span id="profileUsername">teacher</span></p>
+                <p><strong>Display Name:</strong> <span id="profileDisplayName">Dinesh Kumar</span></p>
+                <p><strong>Email:</strong> <span id="profileEmail">dinesh.kumar@example.com</span></p>
+                <p><strong>Department:</strong> <span id="profileDepartment">Computer Science</span></p>
+            </div>
+            <h4>Edit Profile</h4>
+            <input type="text" id="editDisplayName" placeholder="Display Name">
+            <input type="email" id="editEmail" placeholder="Email">
+            <input type="text" id="editDepartment" placeholder="Department">
+            <button onclick="updateTeacherProfile()">Update Profile</button>
+            <p id="profileUpdateMsg" class="success hidden"></p>
+        </div>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div id="studentDashboard" class="container hidden">
+        <div class="user-info">
+            Student: <span id="studentName">Student</span>
+            <button onclick="logout()" class="secondary" style="margin-left:10px;">Logout</button>
+        </div>
+        <h2>Student Dashboard</h2>
+        <div class="project-selector">
+            <label><strong>Select Project:</strong></label>
+            <select id="projectSelect" onchange="switchStudentProject()">
+                <option value="">-- Select a project --</option>
+            </select>
+        </div>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('student', 'project')">Project Details</div>
+            <div class="tab" onclick="switchTab('student', 'progress')">Progress</div>
+            <div class="tab" onclick="switchTab('student', 'chat')">Chat</div>
+            <div class="tab" onclick="switchTab('student', 'files')">Shared Files</div>
+            <div class="tab" onclick="switchTab('student', 'submit')">Submit Project</div>
+        </div>
+
+        <div id="studentProjectTab" class="tab-content active">
+            <div id="projectDetails">Select a project to view details.</div>
+        </div>
+
+        <div id="studentProgressTab" class="tab-content hidden">
+            <textarea id="progressReport" placeholder="Describe your progress..." rows="4"></textarea>
+            <button onclick="submitReport()">Submit Progress Report</button>
+            <h4>Recent Reports</h4>
+            <div id="progressList">No reports yet.</div>
+        </div>
+
+        <div id="studentChatTab" class="tab-content hidden">
+            <div id="chatBox" class="chat-box">No messages yet.</div>
+            <input type="text" id="chatMessage" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
+        <div id="studentFilesTab" class="tab-content hidden">
+            <div class="file-upload">
+                <input type="file" id="sharedFileInput" multiple>
+                <button onclick="uploadSharedFile()">Upload File</button>
+            </div>
+            <div id="sharedFilesList">No shared files.</div>
+        </div>
+
+        <div id="studentSubmitTab" class="tab-content hidden">
+            <div class="submission-checklist">
+                <h4>Pre-Submission Checklist</h4>
+                <label><input type="checkbox" id="check1"> I have reviewed all project requirements</label>
+                <label><input type="checkbox" id="check2"> All necessary files are included</label>
+                <label><input type="checkbox" id="check3"> Files are properly named</label>
+                <label><input type="checkbox" id="check4"> I have tested the submission</label>
+            </div>
+            <div id="projectSubmission">
+                <h4>Upload Project Files</h4>
+                <input type="file" id="projectFiles" multiple>
+                <div id="fileList"></div>
+                <button onclick="submitProject()">Submit Project</button>
+            </div>
+            <div id="submissionStatus" class="hidden"></div>
+        </div>
+    </div>
+
+    <!-- File Preview Modal -->
+    <div id="filePreviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeFilePreview()">&times;</span>
+            <h3 id="previewFileName">File Preview</h3>
+            <img id="imagePreview" style="max-width:100%;display:none">
+            <iframe id="pdfPreview" style="width:100%;height:500px;display:none"></iframe>
+            <div id="textPreview" style="display:none"></div>
+            <div id="unsupportedPreview" style="display:none">Preview not available.</div>
+            <button onclick="downloadCurrentFile()" style="margin-top:10px">Download File</button>
+        </div>
+    </div>
+
+    <script>
+        // ============ BACKEND CONFIGURATION ============
+        // For local testing:
+        const API_BASE_URL = 'http://localhost:8080/api';
+        // For live deployment (uncomment and comment line above):
+        // const API_BASE_URL = 'https://two400030211-backend-2.onrender.com/api';
+        
+        let groupsData = [];
+        let currentStudentProjectId = null;
+        let selectedFiles = [];
+        let currentPreviewFile = null;
+        
+        let teacherProfile = JSON.parse(localStorage.getItem("teacherProfile")) || {
+            username: "teacher",
+            displayName: "Dinesh Kumar",
+            email: "dinesh.kumar@example.com",
+            department: "Computer Science"
+        };
+
+        // Sample data for localStorage fallback
+        let localStorageGroups = JSON.parse(localStorage.getItem("groups")) || [];
+        let localStorageReports = JSON.parse(localStorage.getItem("reports")) || [];
+        let localStorageChat = JSON.parse(localStorage.getItem("chat")) || [];
+        let localStorageFiles = JSON.parse(localStorage.getItem("sharedFiles")) || [];
+
+        // ============ LOGIN ============
+        async function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorMsg = document.getElementById("errorMsg");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.setItem("loggedInUser", username);
+                    localStorage.setItem("role", result.role);
+                    localStorage.setItem("fullName", result.fullName);
+                    errorMsg.textContent = "";
+                    showDashboard(username);
+                } else {
+                    errorMsg.textContent = result.message || "Invalid credentials";
+                }
+            } catch (error) {
+                // Fallback to demo accounts if backend not running
+                if ((username === "teacher" && password === "admin123") || 
+                    (username === "student1" && password === "pass123") ||
+                    (username === "student2" && password === "pass123")) {
+                    localStorage.setItem("loggedInUser", username);
+                    localStorage.setItem("role", username === "teacher" ? "teacher" : "student");
+                    localStorage.setItem("fullName", username === "teacher" ? "Dinesh Kumar" : (username === "student1" ? "Alice Johnson" : "Bob Smith"));
+                    errorMsg.textContent = "";
+                    showDashboard(username);
+                } else {
+                    errorMsg.textContent = "Cannot connect to backend. Make sure it's running on port 8080";
+                }
+            }
+        }
+
+        function showDashboard(username) {
+            const role = localStorage.getItem("role");
+            document.getElementById("loginPage").classList.add("hidden");
+            
+            if (role === "teacher") {
+                document.getElementById("teacherDashboard").classList.remove("hidden");
+                document.getElementById("teacherName").textContent = teacherProfile.displayName;
+                loadGroups();
+                updateTeacherProfileTab();
+            } else {
+                document.getElementById("studentDashboard").classList.remove("hidden");
+                document.getElementById("studentName").textContent = localStorage.getItem("fullName") || username;
+                loadStudentProjects();
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        function switchTab(dashboard, tabName) {
+            document.querySelectorAll(`#${dashboard}Dashboard .tab-content`).forEach(tab => {
+                tab.classList.add("hidden");
+                tab.classList.remove("active");
+            });
+            document.querySelectorAll(`#${dashboard}Dashboard .tab`).forEach(tab => {
+                tab.classList.remove("active");
+            });
+            document.getElementById(`${dashboard}${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`).classList.add("active");
+            document.getElementById(`${dashboard}${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`).classList.remove("hidden");
+            if (event && event.target) event.target.classList.add("active");
+            
+            if (dashboard === 'teacher' && tabName === 'submissions') updateSubmissionsTab();
+        }
+
+        // ============ TEACHER FUNCTIONS ============
+        async function loadGroups() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/groups`);
+                groupsData = await response.json();
+                displayGroups();
+                updateGradingTab();
+            } catch (error) {
+                groupsData = localStorageGroups;
+                displayGroups();
+                updateGradingTab();
+            }
+        }
+
+        function displayGroups() {
+            const container = document.getElementById("groupsList");
+            if (!groupsData.length) {
+                container.innerHTML = "<p>No groups created yet.</p>";
+                return;
+            }
+            container.innerHTML = "";
+            groupsData.forEach(group => {
+                const div = document.createElement("div");
+                div.className = `group-card ${group.status === 'completed' ? 'completed' : ''}`;
+                div.innerHTML = `
+                    <h4>${group.name} ${group.status === 'completed' ? '✅ Completed' : ''}</h4>
+                    <p><strong>ID:</strong> ${group.id}</p>
+                    <p><strong>Status:</strong> ${group.status}</p>
+                    <p><strong>Created:</strong> ${new Date(group.createdAt).toLocaleString()}</p>
+                    <div class="group-buttons">
+                        <button class="danger" onclick="deleteGroup(${group.id})">Delete</button>
+                        ${group.status === 'active' ? `<button class="warning" onclick="markGroupCompleted(${group.id})">✓ Mark Completed</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function createGroup() {
+            const groupName = document.getElementById("groupName").value;
+            const students = document.getElementById("studentList").value;
+            const projectTitle = document.getElementById("projectTitle").value;
+            const projectDescription = document.getElementById("projectDescription").value;
+            const projectDeadline = document.getElementById("projectDeadline").value;
+            
+            if (!groupName || !students || !projectTitle) {
+                alert("Please fill all required fields");
+                return;
+            }
+            
+            const groupData = {
+                name: groupName,
+                students: students.split(",").map(s => s.trim()),
+                projectTitle: projectTitle,
+                projectDescription: projectDescription,
+                projectDeadline: projectDeadline,
+                requirements: ""
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/groups`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(groupData)
+                });
+                if (response.ok) {
+                    alert("✅ Group created successfully!");
+                    document.getElementById("groupName").value = "";
+                    document.getElementById("studentList").value = "";
+                    document.getElementById("projectTitle").value = "";
+                    document.getElementById("projectDescription").value = "";
+                    document.getElementById("projectDeadline").value = "";
+                    loadGroups();
+                } else {
+                    alert("Error creating group");
+                }
+            } catch (error) {
+                // Fallback to localStorage
+                const newGroup = {
+                    id: Date.now(),
+                    name: groupName,
+                    students: students.split(",").map(s => s.trim()),
+                    status: "active",
+                    createdAt: new Date().toISOString()
+                };
+                localStorageGroups.push(newGroup);
+                localStorage.setItem("groups", JSON.stringify(localStorageGroups));
+                groupsData = localStorageGroups;
+                displayGroups();
+                alert("✅ Group created! (Saved locally)");
+                clearGroupForm();
+            }
+        }
+
+        function clearGroupForm() {
+            document.getElementById("groupName").value = "";
+            document.getElementById("studentList").value = "";
+            document.getElementById("projectTitle").value = "";
+            document.getElementById("projectDescription").value = "";
+            document.getElementById("projectDeadline").value = "";
+        }
+
+        async function deleteGroup(groupId) {
+            if (confirm("Are you sure you want to delete this group?")) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/groups/${groupId}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        alert("✅ Group deleted successfully!");
+                        loadGroups();
+                    } else {
+                        alert("Error deleting group");
+                    }
+                } catch (error) {
+                    localStorageGroups = localStorageGroups.filter(g => g.id !== groupId);
+                    localStorage.setItem("groups", JSON.stringify(localStorageGroups));
+                    groupsData = localStorageGroups;
+                    displayGroups();
+                    alert("✅ Group deleted! (Saved locally)");
+                }
+            }
+        }
+
+        async function markGroupCompleted(groupId) {
+            if (confirm("Mark this group as completed?")) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/groups/${groupId}/status?status=completed`, { method: 'PUT' });
+                    if (response.ok) {
+                        alert("✅ Group marked as completed!");
+                        loadGroups();
+                    } else {
+                        alert("Error updating status");
+                    }
+                } catch (error) {
+                    const group = localStorageGroups.find(g => g.id === groupId);
+                    if (group) group.status = "completed";
+                    localStorage.setItem("groups", JSON.stringify(localStorageGroups));
+                    groupsData = localStorageGroups;
+                    displayGroups();
+                    alert("✅ Status updated! (Saved locally)");
+                }
+            }
+        }
+
+        async function updateGradingTab() {
+            const container = document.getElementById("gradingContainer");
+            if (!groupsData.length) {
+                container.innerHTML = "<p>No groups to grade.</p>";
+                return;
+            }
+            container.innerHTML = "";
+            for (const group of groupsData) {
+                const div = document.createElement("div");
+                div.className = "card";
+                div.innerHTML = `
+                    <h3>${group.name}</h3>
+                    <p><strong>Status:</strong> ${group.status}</p>
+                    <button class="warning" onclick="markGroupCompleted(${group.id})">Mark Completed</button>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function updateSubmissionsTab() {
+            const container = document.getElementById("submissionsContainer");
+            container.innerHTML = "<p>📋 Submissions will appear here after students submit projects.</p>";
+        }
+
+        function updateTeacherProfileTab() {
+            document.getElementById("profileUsername").textContent = teacherProfile.username;
+            document.getElementById("profileDisplayName").textContent = teacherProfile.displayName;
+            document.getElementById("profileEmail").textContent = teacherProfile.email;
+            document.getElementById("profileDepartment").textContent = teacherProfile.department;
+            document.getElementById("editDisplayName").value = teacherProfile.displayName;
+            document.getElementById("editEmail").value = teacherProfile.email;
+            document.getElementById("editDepartment").value = teacherProfile.department;
+        }
+
+        function updateTeacherProfile() {
+            teacherProfile.displayName = document.getElementById("editDisplayName").value;
+            teacherProfile.email = document.getElementById("editEmail").value;
+            teacherProfile.department = document.getElementById("editDepartment").value;
+            localStorage.setItem("teacherProfile", JSON.stringify(teacherProfile));
+            updateTeacherProfileTab();
+            const msg = document.getElementById("profileUpdateMsg");
+            msg.textContent = "✅ Profile updated!";
+            msg.classList.remove("hidden");
+            setTimeout(() => msg.classList.add("hidden"), 3000);
+        }
+
+        // ============ STUDENT FUNCTIONS ============
+        async function loadStudentProjects() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/groups`);
+                const allGroups = await response.json();
+                const select = document.getElementById("projectSelect");
+                select.innerHTML = '<option value="">-- Select a project --</option>';
+                allGroups.forEach(group => {
+                    const option = document.createElement("option");
+                    option.value = group.id;
+                    option.textContent = `${group.name} (${group.status})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                const select = document.getElementById("projectSelect");
+                select.innerHTML = '<option value="">-- Select a project --</option>';
+                localStorageGroups.forEach(group => {
+                    const option = document.createElement("option");
+                    option.value = group.id;
+                    option.textContent = `${group.name} (${group.status})`;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        function switchStudentProject() {
+            const select = document.getElementById("projectSelect");
+            currentStudentProjectId = select.value;
+            if (currentStudentProjectId) {
+                loadStudentProjectDetails();
+                loadProgressReports();
+                loadChatMessages();
+                loadSharedFiles();
+            }
+        }
+
+        async function loadStudentProjectDetails() {
+            const container = document.getElementById("projectDetails");
+            try {
+                const response = await fetch(`${API_BASE_URL}/groups/${currentStudentProjectId}`);
+                const group = await response.json();
+                container.innerHTML = `
+                    <div class="project-details">
+                        <h4>📁 ${group.name}</h4>
+                        <p><strong>Status:</strong> ${group.status}</p>
+                        <p><strong>Created:</strong> ${new Date(group.createdAt).toLocaleString()}</p>
+                        <p><strong>Group ID:</strong> ${group.id}</p>
+                    </div>
+                `;
+            } catch (error) {
+                const group = localStorageGroups.find(g => g.id == currentStudentProjectId);
+                if (group) {
+                    container.innerHTML = `
+                        <div class="project-details">
+                            <h4>📁 ${group.name}</h4>
+                            <p><strong>Status:</strong> ${group.status}</p>
+                            <p><strong>Created:</strong> ${new Date(group.createdAt).toLocaleString()}</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = "<p>Project not found</p>";
+                }
+            }
+        }
+
+        function submitReport() {
+            const report = document.getElementById("progressReport").value;
+            if (!report) {
+                alert("Please write a progress report");
+                return;
+            }
+            const username = localStorage.getItem("loggedInUser");
+            const newReport = {
+                id: Date.now(),
+                student: username,
+                content: report,
+                timestamp: new Date().toISOString(),
+                projectId: currentStudentProjectId
+            };
+            localStorageReports.push(newReport);
+            localStorage.setItem("reports", JSON.stringify(localStorageReports));
+            loadProgressReports();
+            document.getElementById("progressReport").value = "";
+            alert("✅ Progress report submitted!");
+        }
+
+        function loadProgressReports() {
+            const container = document.getElementById("progressList");
+            const reports = localStorageReports.filter(r => r.projectId == currentStudentProjectId);
+            if (!reports.length) {
+                container.innerHTML = "<p>No progress reports yet.</p>";
+                return;
+            }
+            container.innerHTML = "";
+            reports.reverse().forEach(report => {
+                const div = document.createElement("div");
+                div.className = "report";
+                div.innerHTML = `
+                    <b>${report.student}</b>: ${report.content}
+                    <br><small>${new Date(report.timestamp).toLocaleString()}</small>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function sendMessage() {
+            const message = document.getElementById("chatMessage").value;
+            if (!message) {
+                alert("Please enter a message");
+                return;
+            }
+            const username = localStorage.getItem("loggedInUser");
+            const newMessage = {
+                id: Date.now(),
+                sender: username,
+                content: message,
+                timestamp: new Date().toISOString(),
+                projectId: currentStudentProjectId
+            };
+            localStorageChat.push(newMessage);
+            localStorage.setItem("chat", JSON.stringify(localStorageChat));
+            loadChatMessages();
+            document.getElementById("chatMessage").value = "";
+        }
+
+        function loadChatMessages() {
+            const container = document.getElementById("chatBox");
+            const username = localStorage.getItem("loggedInUser");
+            const messages = localStorageChat.filter(m => m.projectId == currentStudentProjectId);
+            if (!messages.length) {
+                container.innerHTML = "<p>No messages yet. Start the conversation!</p>";
+                return;
+            }
+            container.innerHTML = "";
+            messages.forEach(msg => {
+                const div = document.createElement("div");
+                div.className = `message ${msg.sender === username ? 'my-msg' : 'student-msg'}`;
+                div.innerHTML = `
+                    <b>${msg.sender}:</b> ${msg.content}
+                    <br><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
+                `;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function uploadSharedFile() {
+            const fileInput = document.getElementById("sharedFileInput");
+            if (!fileInput.files.length) {
+                alert("Please select a file");
+                return;
+            }
+            const username = localStorage.getItem("loggedInUser");
+            Array.from(fileInput.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileData = {
+                        id: Date.now() + Math.random(),
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        data: e.target.result,
+                        uploadedBy: username,
+                        uploadedAt: new Date().toISOString(),
+                        projectId: currentStudentProjectId
+                    };
+                    localStorageFiles.push(fileData);
+                    localStorage.setItem("sharedFiles", JSON.stringify(localStorageFiles));
+                    loadSharedFiles();
+                };
+                reader.readAsDataURL(file);
+            });
+            fileInput.value = "";
+            alert("✅ File uploaded!");
+        }
+
+        function loadSharedFiles() {
+            const container = document.getElementById("sharedFilesList");
+            const files = localStorageFiles.filter(f => f.projectId == currentStudentProjectId);
+            if (!files.length) {
+                container.innerHTML = "<p>No shared files yet.</p>";
+                return;
+            }
+            container.innerHTML = "";
+            files.reverse().forEach(file => {
+                const div = document.createElement("div");
+                div.className = "shared-file-item";
+                div.innerHTML = `
+                    <div>
+                        <strong>📄 ${file.name}</strong><br>
+                        <small>Uploaded by ${file.uploadedBy} on ${new Date(file.uploadedAt).toLocaleString()} (${(file.size/1024).toFixed(2)} KB)</small>
+                    </div>
+                    <div class="shared-file-actions">
+                        <button onclick="previewFile('${file.data}', '${file.name}', '${file.type}')">👁 View</button>
+                        <button onclick="downloadFile('${file.data}', '${file.name}')">📥 Download</button>
+                        ${file.uploadedBy === localStorage.getItem("loggedInUser") ? `<button class="danger" onclick="deleteSharedFile(${file.id})">🗑 Delete</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function deleteSharedFile(fileId) {
+            if (confirm("Delete this file?")) {
+                localStorageFiles = localStorageFiles.filter(f => f.id !== fileId);
+                localStorage.setItem("sharedFiles", JSON.stringify(localStorageFiles));
+                loadSharedFiles();
+                alert("✅ File deleted!");
+            }
+        }
+
+        // File handling for project submission
+        document.getElementById("projectFiles")?.addEventListener("change", function(e) {
+            selectedFiles = Array.from(e.target.files);
+            const fileListDiv = document.getElementById("fileList");
+            fileListDiv.innerHTML = "<h4>📎 Selected Files:</h4>";
+            selectedFiles.forEach(f => {
+                fileListDiv.innerHTML += `<div class="uploaded-file">📄 ${f.name} (${(f.size/1024).toFixed(2)} KB)</div>`;
+            });
+        });
+
+        function submitProject() {
+            const checkboxes = ["check1", "check2", "check3", "check4"];
+            for (let id of checkboxes) {
+                if (!document.getElementById(id).checked) {
+                    alert("Please complete all checklist items");
+                    return;
+                }
+            }
+            if (!selectedFiles.length) {
+                alert("Please select files to submit");
+                return;
+            }
+            alert("✅ Project submitted successfully! The teacher will review it.");
+            document.getElementById("projectSubmission").classList.add("hidden");
+            document.getElementById("submissionStatus").classList.remove("hidden");
+            document.getElementById("submissionStatus").innerHTML = `
+                <div class="success card">
+                    <h4>✅ Project Submitted Successfully!</h4>
+                    <p>Your project has been submitted for review.</p>
+                    <p><strong>Files submitted:</strong> ${selectedFiles.length}</p>
+                    <p>Status: <span style="background:#ff9800;padding:3px 10px;border-radius:20px;">Pending Review</span></p>
+                </div>
+            `;
+        }
+
+        // File preview and download
+        function previewFile(data, filename, type) {
+            currentPreviewFile = { data, name: filename };
+            document.getElementById("previewFileName").innerHTML = filename;
+            document.getElementById("imagePreview").style.display = "none";
+            document.getElementById("pdfPreview").style.display = "none";
+            document.getElementById("textPreview").style.display = "none";
+            document.getElementById("unsupportedPreview").style.display = "none";
+            
+            if (type.startsWith("image/")) {
+                document.getElementById("imagePreview").src = data;
+                document.getElementById("imagePreview").style.display = "block";
+            } else if (type === "application/pdf") {
+                document.getElementById("pdfPreview").src = data;
+                document.getElementById("pdfPreview").style.display = "block";
+            } else if (type.startsWith("text/")) {
+                try {
+                    const text = atob(data.split(",")[1]);
+                    document.getElementById("textPreview").innerHTML = `<pre>${text}</pre>`;
+                    document.getElementById("textPreview").style.display = "block";
+                } catch(e) {
+                    document.getElementById("unsupportedPreview").style.display = "block";
+                }
+            } else {
+                document.getElementById("unsupportedPreview").style.display = "block";
+            }
+            document.getElementById("filePreviewModal").style.display = "flex";
+        }
+
+        function closeFilePreview() {
+            document.getElementById("filePreviewModal").style.display = "none";
+            currentPreviewFile = null;
+        }
+
+        function downloadFile(data, filename) {
+            const link = document.createElement("a");
+            link.href = data;
+            link.download = filename;
+            link.click();
+        }
+
+        function downloadCurrentFile() {
+            if (currentPreviewFile) {
+                downloadFile(currentPreviewFile.data, currentPreviewFile.name);
+            }
+        }
+
+        window.onload = function() {
+            const user = localStorage.getItem("loggedInUser");
+            if (user) showDashboard(user);
+        };
+    </script>
+</body>
+</html>
